@@ -1,0 +1,24 @@
+###
+ # VGScoreboardPing
+ # Copyright (C) 2013 Caio Cogliatti Jabulka (Jabulba) <http://www.jabulba.com>
+ # 
+ # This file is part of VGScoreboardPing.
+ # VGScoreboardPing was originally a module of VG Server Manager(All Right Reserved until public release)
+ # 
+ # VGScoreboardPing is free software: you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+ # the Free Software Foundation, either version 3 of the License, or
+ # (at your option) any later version.
+ # 
+ # VGScoreboardPing is distributed in the hope that it will be useful,
+ # but WITHOUT ANY WARRANTY; without even the implied warranty of
+ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ # GNU General Public License for more details.
+ # 
+ # You should have received a copy of the GNU General Public License
+ # along with VGScoreboardPing.  If not, see <http://www.gnu.org/licenses/>.
+ ##
+
+#Time in ticks between scoreboard updates. Smaller numbers tax more the server. Default: 100, 5 seconds.
+#NOTE: This value has a hardcoded minimum value of 20. The reason for is the server pings every 20 ticks and values below 20 would have no effect.
+period: 100
