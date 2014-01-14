@@ -23,7 +23,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>VGScoreboardPing</groupId>
 	<artifactId>VGScoreboardPing</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<name>VGScoreboardPing</name>
 	<description>This is the ScoreboardPing module standalone from VG Server Manager plugin.</description>
 	<build>

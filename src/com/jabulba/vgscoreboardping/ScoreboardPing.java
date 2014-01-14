@@ -69,7 +69,7 @@ public class ScoreboardPing extends JavaPlugin {
 			    "Metrics failed to send statistics to mcstats.org.\nAllowing metrics helps when deciding what plugins should be updated!\nIf there is a firewall preventing outbound connections, ensure traffic is allowed to mcstats.org port 80.");
 	}
 
-	pingScoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+	pingScoreboard = Bukkit.getServer().getScoreboardManager().getNewScoreboard();
 	pingObjective = pingScoreboard.registerNewObjective("PlayerPing", "dummy");
 	pingObjective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
 
@@ -80,7 +80,7 @@ public class ScoreboardPing extends JavaPlugin {
 	    player.setScoreboard(pingScoreboard);
 	}
 
-	scoreboardPingUpdater = new ScoreboardPingUpdaterTask();
+	scoreboardPingUpdater = new ScoreboardPingUpdaterTask(this);
 	scoreboardPingUpdaterTask = scoreboardPingUpdater.runTaskTimer(this, 0, PING_UPDATER_TASK_PERIOD);
 
 	getLogger().info("Enabled.");

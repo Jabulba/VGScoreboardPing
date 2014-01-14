@@ -20,20 +20,25 @@
  */
 package com.jabulba.vgscoreboardping;
 
-import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_7_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class ScoreboardPingUpdaterTask extends BukkitRunnable {
+    private final ScoreboardPing plugin;
+
+    public ScoreboardPingUpdaterTask(ScoreboardPing plugin) {
+	this.plugin = plugin;
+    }
+
     @Override
     public void run() {
-	if (Bukkit.getOnlinePlayers().length == 0) {
+	if (plugin.getServer().getOnlinePlayers().length == 0) {
 	    return;
 	}
 
-	for (Player player : Bukkit.getOnlinePlayers()) {
-	    ScoreboardPing.pingObjective.getScore(player).setScore(((CraftPlayer) player).getHandle().ping);
+	for (Player player : plugin.getServer().getOnlinePlayers()) {
+	    ScoreboardPing.pingObjective.getScore(plugin.getServer().getOfflinePlayer(player.getPlayerListName())).setScore(((CraftPlayer) player).getHandle().ping);
 	}
     }
 }
