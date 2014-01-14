@@ -20,7 +20,7 @@
  ##
 name: VGScoreboardPing
 main: com.jabulba.vgscoreboardping.ScoreboardPing
-version: 1.0.1
+version: ${project.version}
 author: Jabulba (Caio Jabulka)
 website: http://www.jabulba.com/
 description: This is the ScoreboardPing module standalone from VG Server Manager plugin.
