@@ -28,12 +28,12 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class ScoreboardPingUpdaterTask extends BukkitRunnable {
+public class UpdaterTask extends BukkitRunnable {
     private final ScoreboardPing plugin;
     private Field craftBukkitEntityField;
     private String pingFieldName = "ping";
 
-    public ScoreboardPingUpdaterTask(ScoreboardPing plugin) {
+    public UpdaterTask(ScoreboardPing plugin) {
 	this.plugin = plugin;
 
 	try {
@@ -48,6 +48,8 @@ public class ScoreboardPingUpdaterTask extends BukkitRunnable {
 	} catch (IllegalArgumentException e) {
 
 	}
+
+	plugin.getServer().getScoreboardManager();
     }
 
     @Override
@@ -57,40 +59,43 @@ public class ScoreboardPingUpdaterTask extends BukkitRunnable {
 	}
 
 	for (Player player : plugin.getServer().getOnlinePlayers()) {
-	    int ping;
-	    try {
-		Object craftPlayer = craftBukkitEntityField.get(player);
-		Class<?> entityCraftPlayer = Class.forName(plugin.CRAFT_BUKKIT_CLASS_NAME.concat(".entity.CraftPlayer"));
-		Method getHandle = entityCraftPlayer.getMethod("getHandle", new Class[0]);
-		Object playerHandle = getHandle.invoke(player);
+	    plugin.pingObjective.getScore(plugin.getServer().getOfflinePlayer(player.getPlayerListName())).setScore(getPing(player));
+	}
+    }
 
-		ping = playerHandle.getClass().getField(pingFieldName).getInt(craftPlayer);
-	    } catch (NoSuchFieldException e) {
-		if (pingFieldName == "lastPing") {
-		    plugin.getLogger().info("Parsing player: ".concat(player.getName()));
-		    plugin.getLogger().log(Level.SEVERE, "Unable to determine ping field. Can't continue!", e);
-		    plugin.disable();
-		    return;
-		}
-		if (pingFieldName == "field_71138_i") {
-		    pingFieldName = "lastPing";
-		    plugin.getLogger().info("Failed to find \"field_71138_i\" field! Attempting fallback to \"lastPing\" field name. This field has a drawback and it takes long to update but should always exist.");
-		} else {
-		    pingFieldName = "field_71138_i";
-		    plugin.getLogger().info("Failed to get ping from field \"ping\", field does not exist! Attempting \"field_71138_i\" as ping field name.");
-		}
-		ping = 0;
-	    } catch (Exception e) {
-		plugin.getLogger().info("Parsing player: ".concat(player.getName()));
+    private int getPing(Player player) {
+	try {
+	    Class<?> entityCraftPlayer = Class.forName(plugin.CRAFT_BUKKIT_CLASS_NAME.concat(".entity.CraftPlayer"));
+	    Method getHandle = entityCraftPlayer.getMethod("getHandle", new Class[0]);
+	    Object playerHandle = getHandle.invoke(player);
+	    Object craftPlayer = craftBukkitEntityField.get(player);
+	    return playerHandle.getClass().getField(pingFieldName).getInt(craftPlayer);
+
+	} catch (NoSuchFieldException e) {
+	    if (pingFieldName == "ping") {
+		pingFieldName = "field_71138_i";
+		plugin.getLogger().info("Failed to get ping from field \"ping\", field does not exist! Attempting \"field_71138_i\" as ping field name.");
+	    } else if (pingFieldName == "field_71138_i") {
+		pingFieldName = "lastPing";
 		plugin.getLogger()
-			.log(Level.SEVERE,
-				"VG Scoreboard Ping was unable to find the NMS player class. In rought words the bukkit version you use is not supported. Please report this on the tracker so the plugin can be updated!",
-				e);
-		plugin.disable();
-		return;
-	    }
+			.warning(
+				"Failed to find \"field_71138_i\" field! Attempting fallback to \"lastPing\" field name. This field has a drawback and it takes long to update but should always exist.");
 
-	    plugin.pingObjective.getScore(plugin.getServer().getOfflinePlayer(player.getPlayerListName())).setScore(ping);
+	    } else if (pingFieldName == plugin.FALLBACK_FIELD) {
+		plugin.getLogger().info("Parsing player: ".concat(player.getName()));
+		plugin.getLogger().log(Level.SEVERE, "Unable to determine ping field. Can't continue!", e);
+		plugin.disable();
+	    }
+	    return 0;
+
+	} catch (Exception e) {
+	    plugin.getLogger().info("Parsing player: ".concat(player.getName()));
+	    plugin.getLogger()
+		    .log(Level.SEVERE,
+			    "VG Scoreboard Ping was unable to find the NMS player class. In rought words the bukkit version you use is not supported. Please report this on the tracker so the plugin can be updated!",
+			    e);
+	    plugin.disable();
+	    return 0;
 	}
     }
 }

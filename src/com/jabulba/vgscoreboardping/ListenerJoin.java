@@ -26,11 +26,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-public class ScoreboardPingListenerJoin implements Listener {
+public class ListenerJoin implements Listener {
 
     private ScoreboardPing plugin;
 
-    public ScoreboardPingListenerJoin(ScoreboardPing plugin) {
+    public ListenerJoin(ScoreboardPing plugin) {
 	this.plugin = plugin;
     }
 

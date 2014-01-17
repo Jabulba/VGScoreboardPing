@@ -27,3 +27,12 @@ description: This is the ScoreboardPing module standalone from VG Server Manager
 license: GPLv3 http://www.gnu.org/licenses/gpl.html
 github: https://github.com/Jabulba/VGScoreboardPing
 credits: Dutch1ee for the original plugin PingList
+permissions:
+  vg.scoreboardping.admin:
+    description: Allows the use of /sbp config <period/reload/disable>
+    default: op
+commands:
+   sbp:
+      description: VG Scoreboard Ping commands
+      permission: vg.scoreboardping.admin
+      permission-message: You don't have enougth permission.

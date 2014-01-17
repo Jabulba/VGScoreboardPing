@@ -22,3 +22,4 @@
 #Time in ticks between scoreboard updates. Smaller numbers tax more the server. Default: 100, 5 seconds.
 #NOTE: This value has a hardcoded minimum value of 20. The reason for is the server pings every 20 ticks and values below 20 would have no effect.
 period: 100
+fallback-field: lastPing
