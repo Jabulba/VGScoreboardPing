@@ -27,9 +27,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 public class ScoreboardPingListenerJoin implements Listener {
+
+    private ScoreboardPing plugin;
+
+    public ScoreboardPingListenerJoin(ScoreboardPing plugin) {
+	this.plugin = plugin;
+    }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onJoin(PlayerJoinEvent event) {
 	Player eventPlayer = event.getPlayer();
-	eventPlayer.setScoreboard(ScoreboardPing.pingScoreboard);
+	eventPlayer.setScoreboard(plugin.pingScoreboard);
     }
 }
