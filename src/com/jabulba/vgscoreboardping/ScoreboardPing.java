@@ -22,6 +22,8 @@ package com.jabulba.vgscoreboardping;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -33,17 +35,16 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
-/**
- * @author Caio
- * 
- */
 public class ScoreboardPing extends JavaPlugin {
+    public final String TRACKER_URL = "https://github.com/Jabulba/VGScoreboardPing/issues";
+
     private File configFile;
     private YamlConfiguration config;
     private int PING_UPDATER_TASK_PERIOD = 100;
+    protected String CRAFT_BUKKIT_CLASS_NAME;
 
-    protected static Scoreboard pingScoreboard;
-    protected static Objective pingObjective;
+    protected Scoreboard pingScoreboard;
+    protected Objective pingObjective;
 
     private ScoreboardPingListenerJoin scoreboardListenerJoin;
 
@@ -60,6 +61,22 @@ public class ScoreboardPing extends JavaPlugin {
 	    getLogger().info("period set to 20 ticks. Values below 20 are a waste of resources because the server pings at a constant 20 ticks ratio.");
 	}
 
+	if (!detectCraftBukkitVersion()) {
+	    getLogger().info("Found: " + CRAFT_BUKKIT_CLASS_NAME);
+	    getLogger().severe("Unable to detect org.bukkit.craftbukkit.v#_#_(R#|#) from ".concat(Bukkit.getServer().getClass().toString()));
+	    getLogger().info("If you wish this plugin to support this version of bukkit please open a ticket with the above line at ".concat(TRACKER_URL));
+	    disable();
+	}
+
+	try {
+	    getLogger().info("CraftServer found at: ".concat(Class.forName(CRAFT_BUKKIT_CLASS_NAME.concat(".CraftServer")).getName()));
+	} catch (Exception e) {
+	    getLogger().severe("Failed to auto-detected server class name! [".concat(getServer().getClass().toString()).concat("]"));
+	    getLogger().info("If you wish this plugin to support this version of bukkit please open a ticket with the above line at ".concat(TRACKER_URL));
+	    disable();
+	    return;
+	}
+
 	try {
 	    MetricsLite metricsLite = new MetricsLite(this);
 	    metricsLite.start();
@@ -73,7 +90,7 @@ public class ScoreboardPing extends JavaPlugin {
 	pingObjective = pingScoreboard.registerNewObjective("PlayerPing", "dummy");
 	pingObjective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
 
-	scoreboardListenerJoin = new ScoreboardPingListenerJoin();
+	scoreboardListenerJoin = new ScoreboardPingListenerJoin(this);
 	getServer().getPluginManager().registerEvents(scoreboardListenerJoin, this);
 
 	for (Player player : getServer().getOnlinePlayers()) {
@@ -101,5 +118,23 @@ public class ScoreboardPing extends JavaPlugin {
 	configFile = null;
 
 	getLogger().info("Disabled.");
+    }
+
+    private Boolean detectCraftBukkitVersion() {
+	Pattern pattern = Pattern.compile("v\\d_\\d_(R\\d|\\d)");
+	Matcher matcher = pattern.matcher(Bukkit.getServer().getClass().toString());
+	if (!matcher.find()) {
+	    pattern = Pattern.compile("org.bukkit.craftbukkit");
+	    matcher = pattern.matcher(Bukkit.getServer().getClass().toString());
+	    if (!matcher.find()) {
+		CRAFT_BUKKIT_CLASS_NAME = "nothing found :(";
+		return false;
+	    }
+	    CRAFT_BUKKIT_CLASS_NAME = matcher.group();
+	    return true;
+	}
+	String version = matcher.group();
+	CRAFT_BUKKIT_CLASS_NAME = "org.bukkit.craftbukkit.".concat(version);
+	return true;
     }
 }
