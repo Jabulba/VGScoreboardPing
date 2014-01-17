@@ -21,18 +21,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<properties>
-		<version-minecraft>1.7.2</version-minecraft>
-		<version-bukkit>R0.3-SNAPSHOT</version-bukkit>
+		<version-minecraft>1.6.4</version-minecraft>
+		<version-bukkit>R2.1-SNAPSHOT</version-bukkit>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.jabulba</groupId>
 	<artifactId>VGScoreboardPing</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<name>VGScoreboardPing</name>
 	<description>This is the ScoreboardPing module standalone from VG Server Manager plugin.</description>
-	
+
 	<licenses>
 		<license>
 			<name>GNU GENERAL PUBLIC LICENSE, Version 3</name>
@@ -90,12 +90,6 @@
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
-			<version>${version-minecraft}-${version-bukkit}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.bukkit</groupId>
-			<artifactId>craftbukkit</artifactId>
 			<version>${version-minecraft}-${version-bukkit}</version>
 		</dependency>
 	</dependencies>
