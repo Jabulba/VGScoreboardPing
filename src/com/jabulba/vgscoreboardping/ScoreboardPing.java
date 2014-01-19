@@ -22,10 +22,7 @@ package com.jabulba.vgscoreboardping;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -68,6 +65,10 @@ public class ScoreboardPing extends JavaPlugin {
 	FALLBACK_FIELD = config.getString("fallback-field", "pingList");
 
 	detectCraftBukkitVersion();
+	System.out.println("==========================================================");
+	System.out.println(getServer().getClass().toString());
+	System.out.println(CRAFT_BUKKIT_CLASS_NAME);
+	System.out.println("==========================================================");
 
 	try {
 	    MetricsLite metricsLite = new MetricsLite(this);
@@ -148,23 +149,7 @@ public class ScoreboardPing extends JavaPlugin {
     }
 
     private void detectCraftBukkitVersion() {
-	// TODO: Change pattern search for org.bukkit.craftbukkit(ANYTHING).CraftServer and set CLASS_NAME to org.bukkit.craftbukkit(ANYTHING). This should detect any possible
-	// version
-	Pattern pattern = Pattern.compile("v\\d_\\d_(R\\d|\\d)");
-	Matcher matcher = pattern.matcher(Bukkit.getServer().getClass().toString());
-	if (!matcher.find()) {
-	    pattern = Pattern.compile("org.bukkit.craftbukkit.CraftServer");
-	    matcher = pattern.matcher(Bukkit.getServer().getClass().toString());
-	    if (!matcher.find()) {
-		getLogger().severe("Unable to detect org.bukkit.craftbukkit.v#_#_(R#|#) from ".concat(Bukkit.getServer().getClass().toString()));
-		getLogger().info("If you wish this plugin to support this version of bukkit please open a ticket with the above line at ".concat(TRACKER_URL));
-		disable();
-	    }
-	    CRAFT_BUKKIT_CLASS_NAME = "org.bukkit.craftbukkit";
-	} else {
-	    String version = matcher.group();
-	    CRAFT_BUKKIT_CLASS_NAME = "org.bukkit.craftbukkit.".concat(version);
-	}
+	CRAFT_BUKKIT_CLASS_NAME = getServer().getClass().toString().replace("class ", "").replace(".CraftServer", "");
 
 	try {
 	    Class.forName(CRAFT_BUKKIT_CLASS_NAME.concat(".CraftServer")).getName();
