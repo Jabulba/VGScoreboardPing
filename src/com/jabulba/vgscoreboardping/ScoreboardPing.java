@@ -45,9 +45,6 @@ public class ScoreboardPing extends JavaPlugin {
     protected String CRAFT_BUKKIT_CLASS_NAME;
     protected String FALLBACK_FIELD;
 
-    protected final String PERMISSION_HIDDEN = "vg.scoreboardping.hidden";
-    protected final String PERMISSION_HIDE = "vg.scoreboardping.hide";
-    protected final String PERMISSION_HIDE_OTHERS = "vg.scoreboardping.hideothers";
     protected final String PERMISSION_CONFIG = "vg.scoreboardping.config";
 
     protected Scoreboard pingScoreboard;
