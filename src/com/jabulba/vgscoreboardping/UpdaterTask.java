@@ -24,7 +24,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.logging.Level;
 
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -39,17 +38,17 @@ public class UpdaterTask extends BukkitRunnable {
 	try {
 	    craftBukkitEntityField = Class.forName(plugin.CRAFT_BUKKIT_CLASS_NAME.concat(".entity.CraftEntity")).getDeclaredField("entity");
 	    craftBukkitEntityField.setAccessible(true);
-	    OfflinePlayer offlinePlayer = plugin.getServer().getOfflinePlayer("Jabulba");
-	    @SuppressWarnings("unused")
-	    Object testAccess = craftBukkitEntityField.get(offlinePlayer);
+
+	    // test access to the field. this is here only to cause a SecurityException if something went wrong.
+	    craftBukkitEntityField.get(plugin.getServer().getOfflinePlayer("Jabulba"));
+
 	} catch (ClassNotFoundException | SecurityException | NoSuchFieldException | IllegalAccessException e) {
 	    plugin.getLogger().log(Level.SEVERE,
 		    "Something extremely bad happened trying to gain access to CraftEntity fields! Please do report this problem at ".concat(plugin.TRACKER_URL), e);
+	    plugin.disable();
 	} catch (IllegalArgumentException e) {
-
+	    // The field test was successful! The exception occurs because an OfflinePlayer was used.
 	}
-
-	plugin.getServer().getScoreboardManager();
     }
 
     @Override
@@ -70,24 +69,26 @@ public class UpdaterTask extends BukkitRunnable {
 	    Object playerHandle = getHandle.invoke(player);
 	    Object craftPlayer = craftBukkitEntityField.get(player);
 	    return playerHandle.getClass().getField(pingFieldName).getInt(craftPlayer);
-
+	    
 	} catch (NoSuchFieldException e) {
 	    if (pingFieldName == "ping") {
 		pingFieldName = "field_71138_i";
 		plugin.getLogger().info("Failed to get ping from field \"ping\", field does not exist! Attempting \"field_71138_i\" as ping field name.");
+		
 	    } else if (pingFieldName == "field_71138_i") {
 		pingFieldName = "lastPing";
 		plugin.getLogger()
 			.warning(
 				"Failed to find \"field_71138_i\" field! Attempting fallback to \"lastPing\" field name. This field has a drawback and it takes long to update but should always exist.");
-
+		
 	    } else if (pingFieldName == plugin.FALLBACK_FIELD) {
 		plugin.getLogger().info("Parsing player: ".concat(player.getName()));
 		plugin.getLogger().log(Level.SEVERE, "Unable to determine ping field. Can't continue!", e);
 		plugin.disable();
+		
 	    }
 	    return 0;
-
+	    
 	} catch (Exception e) {
 	    plugin.getLogger().info("Parsing player: ".concat(player.getName()));
 	    plugin.getLogger()

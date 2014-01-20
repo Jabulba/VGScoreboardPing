@@ -65,10 +65,6 @@ public class ScoreboardPing extends JavaPlugin {
 	FALLBACK_FIELD = config.getString("fallback-field", "pingList");
 
 	detectCraftBukkitVersion();
-	System.out.println("==========================================================");
-	System.out.println(getServer().getClass().toString());
-	System.out.println(CRAFT_BUKKIT_CLASS_NAME);
-	System.out.println("==========================================================");
 
 	try {
 	    MetricsLite metricsLite = new MetricsLite(this);
@@ -96,8 +92,6 @@ public class ScoreboardPing extends JavaPlugin {
 
 	config = null;
 	configFile = null;
-
-	getLogger().info("Disabled.");
     }
 
     protected void registerUpdaterTask() {
