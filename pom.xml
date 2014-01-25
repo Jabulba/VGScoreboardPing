@@ -92,10 +92,5 @@
 			<artifactId>bukkit</artifactId>
 			<version>${version-minecraft}-${version-bukkit}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.bukkit</groupId>
-			<artifactId>craftbukkit</artifactId>
-			<version>${version-minecraft}-${version-bukkit}</version>
-		</dependency>
 	</dependencies>
 </project>

@@ -26,6 +26,8 @@ import java.util.logging.Level;
 
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Scoreboard;
 
 public class UpdaterTask extends BukkitRunnable {
     private final ScoreboardPing plugin;
@@ -45,7 +47,8 @@ public class UpdaterTask extends BukkitRunnable {
 	} catch (ClassNotFoundException | SecurityException | NoSuchFieldException | IllegalAccessException e) {
 	    plugin.getLogger().log(Level.SEVERE,
 		    "Something extremely bad happened trying to gain access to CraftEntity fields! Please do report this problem at ".concat(plugin.TRACKER_URL), e);
-	    plugin.disable();
+	    plugin.getServer().getPluginManager().disablePlugin(plugin);
+	    ;
 	} catch (IllegalArgumentException e) {
 	    // The field test was successful! The exception occurs because an OfflinePlayer was used.
 	}
@@ -57,7 +60,29 @@ public class UpdaterTask extends BukkitRunnable {
 	    return;
 	}
 
+	if (plugin.compatibilityMode) {
+	    setPlayerScoreCompatibliblity();
+	} else {
+	    setPlayerScore();
+	}
+    }
+
+    private void setPlayerScore() {
 	for (Player player : plugin.getServer().getOnlinePlayers()) {
+	    plugin.pingObjective.getScore(plugin.getServer().getOfflinePlayer(player.getPlayerListName())).setScore(getPing(player));
+	}
+    }
+
+    private void setPlayerScoreCompatibliblity() {
+	for (Player player : plugin.getServer().getOnlinePlayers()) {
+	    Scoreboard playerScoreboard = player.getScoreboard();
+	    if (playerScoreboard != null && playerScoreboard != plugin.pingScoreboard) {
+		plugin.pingScoreboard = player.getScoreboard();
+		if (plugin.pingScoreboard.getObjective("PlayerPing") == null) {
+		    plugin.pingObjective = plugin.pingScoreboard.registerNewObjective("PlayerPing", "dummy");
+		    plugin.pingObjective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+		}
+	    }
 	    plugin.pingObjective.getScore(plugin.getServer().getOfflinePlayer(player.getPlayerListName())).setScore(getPing(player));
 	}
     }
@@ -69,33 +94,35 @@ public class UpdaterTask extends BukkitRunnable {
 	    Object playerHandle = getHandle.invoke(player);
 	    Object craftPlayer = craftBukkitEntityField.get(player);
 	    return playerHandle.getClass().getField(pingFieldName).getInt(craftPlayer);
-	    
+
 	} catch (NoSuchFieldException e) {
 	    if (pingFieldName == "ping") {
 		pingFieldName = "field_71138_i";
 		plugin.getLogger().info("Failed to get ping from field \"ping\", field does not exist! Attempting \"field_71138_i\" as ping field name.");
-		
+
 	    } else if (pingFieldName == "field_71138_i") {
 		pingFieldName = "lastPing";
 		plugin.getLogger()
 			.warning(
 				"Failed to find \"field_71138_i\" field! Attempting fallback to \"lastPing\" field name. This field has a drawback and it takes long to update but should always exist.");
-		
+
 	    } else if (pingFieldName == plugin.FALLBACK_FIELD) {
 		plugin.getLogger().info("Parsing player: ".concat(player.getName()));
 		plugin.getLogger().log(Level.SEVERE, "Unable to determine ping field. Can't continue!", e);
-		plugin.disable();
-		
+		plugin.getServer().getPluginManager().disablePlugin(plugin);
+		;
+
 	    }
 	    return 0;
-	    
+
 	} catch (Exception e) {
 	    plugin.getLogger().info("Parsing player: ".concat(player.getName()));
 	    plugin.getLogger()
 		    .log(Level.SEVERE,
 			    "VG Scoreboard Ping was unable to find the NMS player class. In rought words the bukkit version you use is not supported. Please report this on the tracker so the plugin can be updated!",
 			    e);
-	    plugin.disable();
+	    plugin.getServer().getPluginManager().disablePlugin(plugin);
+	    ;
 	    return 0;
 	}
     }

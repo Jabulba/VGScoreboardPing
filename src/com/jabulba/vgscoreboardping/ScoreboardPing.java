@@ -22,6 +22,7 @@ package com.jabulba.vgscoreboardping;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -46,11 +47,15 @@ public class ScoreboardPing extends JavaPlugin {
 
     protected Scoreboard pingScoreboard;
     protected Objective pingObjective;
+    protected Scoreboard masterPingScoreboard;
+    protected Objective masterPingObjective;
 
     private ListenerJoin scoreboardListenerJoin;
 
     protected UpdaterTask scoreboardPingUpdater;
     protected BukkitTask scoreboardPingUpdaterTask;
+
+    protected Boolean compatibilityMode = false;
 
     public void onEnable() {
 	configFile = new File(getDataFolder().getPath().concat(File.separator).concat("config.yml"));
@@ -63,6 +68,7 @@ public class ScoreboardPing extends JavaPlugin {
 	    getLogger().info("period set to 20 ticks. Values below 20 are a waste of resources because the server pings at a constant 20 ticks ratio.");
 	}
 	FALLBACK_FIELD = config.getString("fallback-field", "pingList");
+	compatibilityMode = config.getBoolean("compatibility-mode", false);
 
 	detectCraftBukkitVersion();
 
@@ -85,7 +91,7 @@ public class ScoreboardPing extends JavaPlugin {
 	getCommand("sbp").setExecutor(new Commands(this));
     }
 
-    public void disable() {
+    public void onDisable() {
 	unregisterUpdaterTask();
 	unregisterScoreboard();
 	unregisterListenerJoin();
@@ -113,6 +119,8 @@ public class ScoreboardPing extends JavaPlugin {
 	pingScoreboard = getServer().getScoreboardManager().getNewScoreboard();
 	pingObjective = pingScoreboard.registerNewObjective("PlayerPing", "dummy");
 	pingObjective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+	masterPingScoreboard = pingScoreboard;
+	masterPingObjective = pingObjective;
     }
 
     protected void unregisterScoreboard() {
@@ -124,6 +132,8 @@ public class ScoreboardPing extends JavaPlugin {
 	    pingScoreboard.clearSlot(DisplaySlot.PLAYER_LIST);
 	    pingScoreboard = null;
 	}
+	masterPingScoreboard = null;
+	masterPingObjective = null;
     }
 
     protected void registerListenerJoin() {
@@ -152,7 +162,24 @@ public class ScoreboardPing extends JavaPlugin {
 		    "Failed to auto-detected server class name!\nExpected [".concat(getServer().getClass().toString()).concat("]\nUsing ").concat(CRAFT_BUKKIT_CLASS_NAME)
 			    .concat(".CraftServer"));
 	    getLogger().info("If you wish this plugin to support this version of bukkit please open a ticket with the above line at ".concat(TRACKER_URL));
-	    disable();
+	    getServer().getPluginManager().disablePlugin(this);
+	}
+    }
+
+    protected void reinit() {
+	unregisterUpdaterTask();
+	unregisterListenerJoin();
+	unregisterScoreboard();
+	registerScoreboard();
+	registerListenerJoin();
+	registerUpdaterTask();
+    }
+
+    protected void configSave() {
+	try {
+	    config.save(configFile);
+	} catch (IOException e) {
+	    getLogger().log(Level.SEVERE, "Error saving config!", e);
 	}
     }
 }
