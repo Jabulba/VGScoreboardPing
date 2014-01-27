@@ -40,8 +40,8 @@ public class Commands implements CommandExecutor {
 	    if (period < 20) {
 		sender.sendMessage(plugin.DISPLAY_NAME.concat(" Period below 20 has no effect real effect, bukkit pings players only once a second."));
 	    }
-	    plugin.PING_UPDATER_TASK_PERIOD = period;
-	    plugin.config.set("period", plugin.PING_UPDATER_TASK_PERIOD);
+	    plugin.pingUpdaterTaskPeriod = period;
+	    plugin.config.set("period", plugin.pingUpdaterTaskPeriod);
 	    plugin.configSave();
 	    sender.sendMessage(plugin.DISPLAY_NAME.concat(" The period has been set to ").concat(String.valueOf(period)));
 

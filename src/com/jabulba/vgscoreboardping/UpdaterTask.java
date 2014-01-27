@@ -38,7 +38,7 @@ public class UpdaterTask extends BukkitRunnable {
 	this.plugin = plugin;
 
 	try {
-	    craftBukkitEntityField = Class.forName(plugin.CRAFT_BUKKIT_CLASS_NAME.concat(".entity.CraftEntity")).getDeclaredField("entity");
+	    craftBukkitEntityField = Class.forName(plugin.craftBukkitClassName.concat(".entity.CraftEntity")).getDeclaredField("entity");
 	    craftBukkitEntityField.setAccessible(true);
 
 	    // test access to the field. this is here only to cause a SecurityException if something went wrong.
@@ -89,7 +89,7 @@ public class UpdaterTask extends BukkitRunnable {
 
     private int getPing(Player player) {
 	try {
-	    Class<?> entityCraftPlayer = Class.forName(plugin.CRAFT_BUKKIT_CLASS_NAME.concat(".entity.CraftPlayer"));
+	    Class<?> entityCraftPlayer = Class.forName(plugin.craftBukkitClassName.concat(".entity.CraftPlayer"));
 	    Method getHandle = entityCraftPlayer.getMethod("getHandle", new Class[0]);
 	    Object playerHandle = getHandle.invoke(player);
 	    Object craftPlayer = craftBukkitEntityField.get(player);
@@ -106,7 +106,7 @@ public class UpdaterTask extends BukkitRunnable {
 			.warning(
 				"Failed to find \"field_71138_i\" field! Attempting fallback to \"lastPing\" field name. This field has a drawback and it takes long to update but should always exist.");
 
-	    } else if (pingFieldName == plugin.FALLBACK_FIELD) {
+	    } else if (pingFieldName == plugin.fallbackField) {
 		plugin.getLogger().info("Parsing player: ".concat(player.getName()));
 		plugin.getLogger().log(Level.SEVERE, "Unable to determine ping field. Can't continue!", e);
 		plugin.getServer().getPluginManager().disablePlugin(plugin);

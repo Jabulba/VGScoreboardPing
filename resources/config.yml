@@ -19,6 +19,16 @@
  # along with VGScoreboardPing.  If not, see <http://www.gnu.org/licenses/>.
  ##
 
+ #The time in ticks to update the scoreboard
 period: 100
-fallback-field: lastPing
+
+#Attempt to use other plugins scoreboard. Set this to true if you have other plugins using the scoreboard.
 compatibility-mode: false
+
+#Change if you get an error about not being able to find the ping field. for more info: http://dev.bukkit.org/bukkit-plugins/vg-scoreboard-ping/pages/how-it-works/
+fallback-field: lastPing
+
+#You can opt-out from metrics by setting the value to true. Metrics can help devs out! Disable only if you really need to!
+#Optionally you can globaly opt-out from metrics by editing "plugins/PluginMetrics/config.yml" and changing opt-out to true.
+#You can check the information here: http://mcstats.org/plugin/VGScoreboardPing
+metrics-opt-out: false

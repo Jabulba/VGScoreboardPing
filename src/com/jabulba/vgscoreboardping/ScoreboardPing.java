@@ -39,9 +39,11 @@ public class ScoreboardPing extends JavaPlugin {
     protected File configFile;
     protected YamlConfiguration config;
 
-    protected int PING_UPDATER_TASK_PERIOD = 100;
-    protected String CRAFT_BUKKIT_CLASS_NAME;
-    protected String FALLBACK_FIELD;
+    protected int pingUpdaterTaskPeriod = 100;
+    protected String craftBukkitClassName;
+    protected String fallbackField;
+    protected Boolean compatibilityMode = false;
+    protected Boolean metricsOptOut = false;
 
     protected final String PERMISSION_CONFIG = "vg.scoreboardping.config";
 
@@ -55,30 +57,31 @@ public class ScoreboardPing extends JavaPlugin {
     protected UpdaterTask scoreboardPingUpdater;
     protected BukkitTask scoreboardPingUpdaterTask;
 
-    protected Boolean compatibilityMode = false;
-
     public void onEnable() {
 	configFile = new File(getDataFolder().getPath().concat(File.separator).concat("config.yml"));
 	saveDefaultConfig();
 	config = YamlConfiguration.loadConfiguration(configFile);
-	PING_UPDATER_TASK_PERIOD = config.getInt("period", 100);
-	if (PING_UPDATER_TASK_PERIOD < 20) {
-	    PING_UPDATER_TASK_PERIOD = 20;
-	    config.set("period", PING_UPDATER_TASK_PERIOD);
+	pingUpdaterTaskPeriod = config.getInt("period", 100);
+	if (pingUpdaterTaskPeriod < 20) {
+	    pingUpdaterTaskPeriod = 20;
+	    config.set("period", pingUpdaterTaskPeriod);
 	    getLogger().info("period set to 20 ticks. Values below 20 are a waste of resources because the server pings at a constant 20 ticks ratio.");
 	}
-	FALLBACK_FIELD = config.getString("fallback-field", "pingList");
+	fallbackField = config.getString("fallback-field", "pingList");
 	compatibilityMode = config.getBoolean("compatibility-mode", false);
+	metricsOptOut = config.getBoolean("metrics-opt-out", false);
 
 	detectCraftBukkitVersion();
 
-	try {
-	    MetricsLite metricsLite = new MetricsLite(this);
-	    metricsLite.start();
-	} catch (IOException e) {
-	    getLogger()
-		    .warning(
-			    "Metrics failed to send statistics to mcstats.org.\nAllowing metrics helps when deciding what plugins should be updated!\nIf there is a firewall preventing outbound connections, ensure traffic is allowed to mcstats.org port 80.");
+	if (!metricsOptOut) {
+	    try {
+		MetricsLite metricsLite = new MetricsLite(this);
+		metricsLite.start();
+	    } catch (IOException e) {
+		getLogger()
+			.warning(
+				"Metrics failed to send statistics to mcstats.org.\nAllowing metrics helps when deciding what plugins should be updated!\nIf there is a firewall preventing outbound connections, ensure traffic is allowed to mcstats.org port 80.");
+	    }
 	}
 
 	registerScoreboard();
@@ -102,7 +105,7 @@ public class ScoreboardPing extends JavaPlugin {
 
     protected void registerUpdaterTask() {
 	scoreboardPingUpdater = new UpdaterTask(this);
-	scoreboardPingUpdaterTask = scoreboardPingUpdater.runTaskTimer(this, 0, PING_UPDATER_TASK_PERIOD);
+	scoreboardPingUpdaterTask = scoreboardPingUpdater.runTaskTimer(this, 0, pingUpdaterTaskPeriod);
     }
 
     protected void unregisterUpdaterTask() {
@@ -153,13 +156,13 @@ public class ScoreboardPing extends JavaPlugin {
     }
 
     private void detectCraftBukkitVersion() {
-	CRAFT_BUKKIT_CLASS_NAME = getServer().getClass().toString().replace("class ", "").replace(".CraftServer", "");
+	craftBukkitClassName = getServer().getClass().toString().replace("class ", "").replace(".CraftServer", "");
 
 	try {
-	    Class.forName(CRAFT_BUKKIT_CLASS_NAME.concat(".CraftServer")).getName();
+	    Class.forName(craftBukkitClassName.concat(".CraftServer")).getName();
 	} catch (Exception e) {
 	    getLogger().severe(
-		    "Failed to auto-detected server class name!\nExpected [".concat(getServer().getClass().toString()).concat("]\nUsing ").concat(CRAFT_BUKKIT_CLASS_NAME)
+		    "Failed to auto-detected server class name!\nExpected [".concat(getServer().getClass().toString()).concat("]\nUsing ").concat(craftBukkitClassName)
 			    .concat(".CraftServer"));
 	    getLogger().info("If you wish this plugin to support this version of bukkit please open a ticket with the above line at ".concat(TRACKER_URL));
 	    getServer().getPluginManager().disablePlugin(this);
