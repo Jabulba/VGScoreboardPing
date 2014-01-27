@@ -29,6 +29,6 @@ compatibility-mode: false
 fallback-field: lastPing
 
 #You can opt-out from metrics by setting the value to true. Metrics can help devs out! Disable only if you really need to!
-#Optionally you can globaly opt-out from metrics by editing "plugins/PluginMetrics/config.yml" and changing opt-out to true.
+#Optionally you can globally opt-out from metrics by editing "plugins/PluginMetrics/config.yml" and changing opt-out to true.
 #You can check the information here: http://mcstats.org/plugin/VGScoreboardPing
 metrics-opt-out: false
