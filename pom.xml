@@ -93,4 +93,4 @@
 			<version>${version-minecraft}-${version-bukkit}</version>
 		</dependency>
 	</dependencies>
-</project>
+</project>''
